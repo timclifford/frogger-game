@@ -5,6 +5,8 @@ HTML5 Canvas Game built as part of Udacity Front End Developer Nanodegree Progra
 
 Play the online version of the [game here](http://timclifford.github.io/frogger-game/).
 
+To play the game locally without internet access simple download and extract all files. Then open index.html in a web browser.
+
 @TODO 
 Add gems to collect, messages for feedback, add lives, add levels, 
 make board larger, character selection and add some music.

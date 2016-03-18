@@ -4,8 +4,9 @@
  * @since 18/03/2016
 */
 
-//@TODO - Add gems to collect, messages for feedback, add lives, add levels, 
-//        make board larger, character selection and add some music.
+// @TODO
+// Add gems to collect, messages for feedback, add lives, add levels, 
+// make board larger, character selection and add some music.
 
 
 // Global variables
@@ -147,14 +148,11 @@ var Player = function() {
     this.reset();
 }
 
-// Display player score.
+// Update player positioning has been moved to Player.prototype.handleInput.
+// Render Player scoring and levels.
 Player.prototype.update = function() {
-    
-    // Display Score
-    ctx.clearRect(0, 0, 250, 43);
-    ctx.fillStyle = 'black';
-    ctx.font = '30px Impact';
-    ctx.fillText("Score: " + this.score, 0, 40);
+    renderLevel();
+    renderScoreboard();
 }
 
 // Draw the player on the screen, required method for game
@@ -192,9 +190,11 @@ Player.prototype.handleInput = function(allowedKeys) {
         if (y >= -14) {
             this.y = y;
         }
+        // If player moved into water row 
         if (y == -14) {
-            // If player moved into water row then move back to starting position with a delay.
-            this.score = this.score + 1;
+            // If player reaches the water add 5 to score.
+            levelComplete();
+            // Then move back to starting position with a .5 delay.
             var reset = function resetDelay() {
                 player.reset();
             }
@@ -216,6 +216,32 @@ Player.prototype.handleInput = function(allowedKeys) {
 Player.prototype.reset = function() {
     this.x = 202;
     this.y = 401;
+}
+
+function renderScoreboard() {
+    // Display Score
+    ctx.clearRect(0, 0, 250, 43);
+    ctx.fillStyle = 'black';
+    ctx.font = '30px Impact';
+    ctx.fillText("Score: " + this.score, 0, 40);
+}
+
+function renderLevel() {
+    // Display Level
+    ctx.font = "30px Helvetica, Arial, sans-serif";
+    ctx.strokeText("Level: " + this.level, 300, 40);
+}
+
+function renderLives() {
+
+}
+
+// Level complete.
+function levelComplete() {
+    // If player reaches the water add 5 to score.
+    this.score = this.score + 5;
+    this.level = this.level + 1;
+
 }
 
 // Now instantiate your objects.
