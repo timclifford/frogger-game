@@ -5,14 +5,16 @@ HTML5 Canvas Game built as part of Udacity Front End Developer Nanodegree Progra
 
 Play the online version of the [game here](http://timclifford.github.io/frogger-game/).
 
-## How to play
-The aim of the game is simple - get the highest score possible by reaching the water while avoiding the bugs.
+@TODO 
+Add gems to collect, messages for feedback, add lives, add levels, 
+make board larger, character selection and add some music.
 
-Get a higher score by collecting gems. Points for gems 50 for blue gem, 100 for green gem and 200 for orange gem.
+# How to play
+The aim of the game is simple - get the highest score possible by reaching the water while avoiding the bugs.
 
 You can move the player using `up` , `down` , `left` and `right` arrow keys on your keyboard.
 
-## Code Structure
+# Code Structure
 
 - app.js
 
@@ -27,7 +29,7 @@ Runs the main game loop, updates and renders player and other game objects.
 Loads the images used in the game and maintains a cache facility.
 
 
-## License
+# License
 The MIT License (MIT)
 
 Copyright (c) [2016] [Tim Clifford]
