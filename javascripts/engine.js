@@ -22,6 +22,7 @@ var Engine = (function(global) {
     var doc = global.document,
         win = global.window,
         canvas = doc.createElement('canvas'),
+        canvas.setAttribute("id", "frogger"),
         ctx = canvas.getContext('2d'),
         lastTime;
 
