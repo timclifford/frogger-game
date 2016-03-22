@@ -3,13 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Effective JavaScript: Frogger</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 	<header>
-		<h1>Frogger</h1>
+		 <img src="images/logo-frogger.png" class="logo">
 	</header>
+	
+	<section class="main">
+			<div class="SplashScreen">
+                 <h2 class="margin-50">Frogger - HTML5 Canvas based game</h2>
+                 <img src="images/logo-frogger.png" class="logo">
+                <input class="StartButton" type="button" value="Start" />
+            </div>
+            <div class="GameOverScreen">
+                <h2>Your Score was...</h2>
+				<!-- <input class="RetryButton" type="button" value="Retry" /> -->
+            </div>
+			<div id="game"></div>
+	</section>
+	
 
     <script src="js/resources.js"></script>
     <script src="js/app.js"></script>

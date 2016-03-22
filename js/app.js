@@ -10,17 +10,26 @@
 
 
 // Global variables
-var board_x = 505;
-var board_y = 606;
+var board_x = 1111;
+var board_y = 830;
 var box_height = 83;
 var box_width = 101;
 
+var totalCols = 11;
+var totalRows = 9;
+
 var total_enemy = 6;
 
+// Starting Score and Gems
 var score = 0;
-var gems = 0;
-var lives = 0;
+var lives = 5;
+var totalGem = 0;
+
+//Starting Level
 var level = 1;
+var levelCompleted = "false";
+
+var gameIsOver = "false";
 
 // Enemies our player must avoid
 var Enemy = function() {
@@ -35,12 +44,15 @@ var Enemy = function() {
     this.height = box_height;
     this.width = box_width;
 
+    var score = score;
+
     // Set Enemy start position.
     this.x = this.y = this.speed = 0;
     this.setStartPosition();
 
     // Save previous location to use in Player collision detection
     this.previousX = this.x;
+    this.previousSpeed = this.speed;
 }
 
 // Update the enemy's position, required method for game
@@ -62,11 +74,12 @@ Enemy.prototype.update = function(dt) {
     // Check if Enemy postion has moved off board.
     if (current_x > board_x) {
         // If so, move it to setStartPosition().
-        this.setStartPosition();
+            this.setStartPosition();
     } else {
         // If enemy is still on board, update new position on current row
         this.x = current_x;
     }
+
 }
 
 // Draw the enemy on the screen, required method for game
@@ -74,23 +87,67 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
-// Set a random start position (1 of 3 possible rows).
+// Set a random start position (1 of 6 possible rows).
 Enemy.prototype.setStartPosition = function() {
     // Set a random start x position.
-    this.x = this.getRandomInt(-505, -101);
+    this.x = this.getRandomInt(-1111, -101);
 
     // Determine a random start row
-    var rows = [69, 152, 235];
-    var row = this.getRandomInt(0, 2);
-    this.y = rows[row];
+    var enemyRows = [69, 152, 235, 318, 401, 484];
 
-    // Set a random speed
-    this.speed = this.getRandomInt(100, 500);
+    var randRow = this.getRandomInt(0, 5);
+    this.y = enemyRows[randRow];
+
+    // Set a random speed at start.
+    var min = 100;
+    var max = 500;
+    this.speed = this.getRandomInt(min, max);
+
+    //Set speed based on score.
+    if (scoreRange(score, 50, 99)) {
+        this.setSpeed = this.speed;
+        var fasterMin = this.setSpeed += 50;
+        var fasterMax = this.setSpeed += 50;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        console.log(this.setSpeed);
+    } else if (scoreRange(score, 100, 499)) {
+        this.setSpeed = this.speed;
+        var fasterMin = this.setSpeed += 200;
+        var fasterMax = this.setSpeed += 200;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        console.log(this.setSpeed);
+    } else if (scoreRange(score, 500, 999)) {
+        this.setSpeed = this.speed;
+        var fasterMin = this.setSpeed += 400;
+        var fasterMax = this.setSpeed += 400;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        console.log(this.setSpeed);
+     } else if (scoreRange(score, 1000, 5000)) {
+        this.setSpeed = this.speed;
+        var fasterMin = this.setSpeed += 1000;
+        var fasterMax = this.setSpeed += 1000;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        console.log(this.setSpeed);   
+    } else {
+        var min = 100;
+        var max = 500;
+        this.speed = this.getRandomInt(min, max);
+    }
+}
+
+function scoreRange(x, min, max) {
+  var score = this.score
+  return score >= min && score <= max;
 }
 
 // Get enemy's previous location and enemy's current position.
 // Get player's current position.
 Enemy.prototype.collision = function() {
+
     // Check for collision if player and enemy are on same row.
     if (this.y == player.y) {
 
@@ -117,8 +174,11 @@ Enemy.prototype.collision = function() {
 
         // Check if the two boxes now intersect and therefore cause a collision.
         if (this.intersect(enemyBox, playerBox)) {
+            var lostLive = player.lives -= 1;
+            player.lives = lostLive;
             return true;
         }
+
     }
     return false;
 }
@@ -139,6 +199,10 @@ Enemy.prototype.getRandomInt = function(min, max) {
 var Player = function() {
     this.sprite = "images/frogger.png";
     this.score = score;
+
+    // Lives
+    this.lives = lives;
+
     // Set height and width of player.
     this.height = 83;
     this.width = 101;
@@ -151,7 +215,24 @@ var Player = function() {
 // Update player positioning has been moved to Player.prototype.handleInput.
 // Render Player scoring and levels.
 Player.prototype.update = function() {
+    // Check if player collides with gems. If true give the player extra points.
+    if (checkObjectCollisions(player, gem)) {
+        totalGem += 1;
+        score += 10;
+        gemPosition.apply(gem);
+    }
+
+    // Check if player collides with heart. If true give the player an extra live.
+    if (checkObjectCollisions(player, life)) {
+        this.lives += 1;
+        
+        //if (level == ){
+            heartPosition.apply(life);
+        //}
+    }
+
     renderLevel();
+    renderLives();
     renderScoreboard();
 }
 
@@ -161,7 +242,7 @@ Player.prototype.render = function() {
 }
 
 // Player movement. Checks for boundaries.
-Player.prototype.handleInput = function(allowedKeys) {
+Player.prototype.handleInput = function(allowedKeys, allowedKeysWhenGameOver) {
 
     var x = y = 0;
 
@@ -178,7 +259,7 @@ Player.prototype.handleInput = function(allowedKeys) {
     if (allowedKeys === 'right') {
         x = this.x + 101;
         // But don't move off far right.
-        if (x <= 404) {
+        if (x <= 1101) {
             this.x = x;
         }
     }
@@ -194,11 +275,6 @@ Player.prototype.handleInput = function(allowedKeys) {
         if (y == -14) {
             // If player reaches the water add 5 to score.
             levelComplete();
-            // Then move back to starting position with a .5 delay.
-            var reset = function resetDelay() {
-                player.reset();
-            }
-            setTimeout(reset, 500);
         }
     }
 
@@ -206,17 +282,99 @@ Player.prototype.handleInput = function(allowedKeys) {
     if (allowedKeys === 'down') {
         y = this.y + 83;
         // Do not allow Player to move off bottom of board
-        if (y <= 401) {
+        if (y <= 715) {
             this.y = y;
         }
     }
+
+    // space
+    if (allowedKeys === 'space') {
+
+    }
+
+    if (allowedKeysWhenGameOver === 'esc') {
+        resetGame();
+    }
+
 }
 
 // Move player back to original starting position
 Player.prototype.reset = function() {
-    this.x = 202;
-    this.y = 401;
+    var total_x = box_width * 5; 
+    var center_x = total_x;
+    var total_y = box_height * totalRows;
+    var start_y = total_y - 180;
+    this.x = center_x;
+    this.y = start_y;
 }
+
+// Gem class.
+
+var Gem = function () {
+     this.sprite = 'images/gem-blue.png';
+     gemPosition.apply(this);
+};
+
+// Generate random gem position.
+function gemPosition() {
+    this.x = Math.floor(Math.random() * totalCols) * box_width;
+    // Only load gems inside the path of the running enemy bugs.
+    this.y = (Math.floor(Math.random() * (totalRows - 3)) * box_height) + 55;
+};
+
+// Unused.
+Gem.prototype.update = function () {
+
+};
+
+Gem.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+// Life class.
+
+var Life = function () {
+     this.sprite = 'images/heart.png';
+     heartPosition.apply(this);
+};
+
+// Generate random heart position.
+function heartPosition() {
+    this.x = Math.floor(Math.random() * totalCols) * box_width;
+    // Only load heart inside the path of the running enemy bugs.
+    this.y = (Math.floor(Math.random() * (totalRows - 3)) * box_height) + 55;
+};
+
+// Unused.
+Life.prototype.update = function () {
+
+};
+
+Life.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+function checkObjectCollisions(objectA, objectB) {
+    var playerX = Math.floor(objectA.x / box_width);
+    var playerY = Math.floor(objectA.y / box_height);
+    if (Array.isArray(objectB)) {
+        for (var i = 0; i < objectB.length; i += 1) {
+            var enemyX = Math.floor(objectB[i].x / box_width);
+            var enemyY = Math.floor((objectB[i].y) / box_height);
+            if (enemyX === playerX && enemyY === playerY) {
+                return true;
+            }
+        }
+    } else {
+        var enemyX = Math.floor(objectB.x / box_width);
+        var enemyY = Math.floor((objectB.y) / box_height);
+        if (enemyX === playerX && enemyY === playerY) {
+            return true;
+        }
+    }
+}
+
+/* Rendering */
 
 function renderScoreboard() {
     // Display Score
@@ -228,20 +386,78 @@ function renderScoreboard() {
 
 function renderLevel() {
     // Display Level
-    ctx.font = "30px Helvetica, Arial, sans-serif";
-    ctx.strokeText("Level: " + this.level, 300, 40);
+    ctx.clearRect(1000, 0, 250, 43);
+    ctx.font = "30px Impact, Arial, sans-serif";
+    ctx.fillText("Level: " + this.level, 1000, 40);
 }
 
 function renderLives() {
+    // Display Lives
+    ctx.clearRect(420, 0, 100, 43);
+    ctx.font = "30px Impact, Arial, sans-serif";
+    ctx.fillText("Lives: " + player.lives, 420, 40);
+}
 
+function renderHeart() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+// Game Over.
+var gameOver = function(x, y) {
+    this.sprite = 'images/game_over.png';
+    this.x = x;
+    this.y = y;
+}
+
+// Unused.
+gameOver.prototype.update = function () {
+
+};
+
+gameOver.prototype.render = function() {
+    //Check if player has 0 lives. If they do then Game Over.
+    if (player.lives === 0) {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+        gameOverScreen();
+    }
+
+};
+
+function gameOverScreen() {
+    //GameOverScreen
+    $(".GameOverScreen").show();
+    $(".hide").hide();
+    gameIsOver = "true";
+}
+
+// Reset Game
+function resetGame() {
+    player.reset();
+    player.lives = 5;
+    this.score = 0;
+    this.level = 1;
+    //var totalGem = 0;
+    gameIsOver = "false";
+    $(".GameOverScreen").hide();
 }
 
 // Level complete.
 function levelComplete() {
+
+    var levelCompleted = "true";
+
     // If player reaches the water add 5 to score.
     this.score = this.score + 5;
     this.level = this.level + 1;
 
+    // Then move back to starting position with a .5 delay.
+    var reset = function resetDelay() {
+        player.reset();
+    }
+    setTimeout(reset, 500);
+
+    // Reset next level to false.
+    levelStatus = false;
 }
 
 // Now instantiate your objects.
@@ -257,6 +473,16 @@ for (var index = 0; index < total_enemy; index++) {
     allEnemies.push(enemyObj);
 };
 
+// Game Over.
+var gameOverImage = 'images/game_over.png';
+var gameOver = new gameOver(340, 370, gameOverImage);
+
+// Add Gems.
+var gem = new Gem();
+
+// Add Lives.
+var life = new Life();
+
 //Create player.
 var player = new Player();
 
@@ -267,8 +493,20 @@ document.addEventListener('keyup', function(e) {
         37: 'left',
         38: 'up',
         39: 'right',
-        40: 'down'
+        40: 'down',
+        32: 'space'
     };
-
-    player.handleInput(allowedKeys[e.keyCode]);
+    var allowedKeysWhenGameOver = {
+        27: 'esc'
+    }
+    switch (gameIsOver) {
+        case "false":
+            player.handleInput(allowedKeys[e.keyCode]);
+            break;
+        case 'true':
+            player.handleInput(0, allowedKeysWhenGameOver[e.keyCode]);
+            break;
+        default:
+            break;
+    }
 });
