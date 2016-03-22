@@ -8,7 +8,6 @@
 // Add gems to collect, messages for feedback, add lives, add levels, 
 // make board larger, character selection and add some music.
 
-
 // Global variables
 var board_x = 1111;
 var board_y = 830;
