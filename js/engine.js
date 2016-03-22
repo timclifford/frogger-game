@@ -14,6 +14,22 @@
  * a little simpler to work with.
  */
 
+/* jQuery to Load in Splash screens. */
+$(document).ready(function(){
+    $(".GameOverScreen").hide();
+
+    $(".StartButton").click(function () {
+        $(".SplashScreen").hide();
+        $(".play").show();
+    });
+
+/*    $(".RetryButton").click(function () {
+        $(".GameOverScreen").hide();
+        $(".play").show();
+    });*/
+
+});
+
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
@@ -27,7 +43,10 @@ var Engine = (function(global) {
 
     canvas.width = board_x;
     canvas.height = board_y;
+    canvas.id = 'frogger';
     doc.body.appendChild(canvas);
+    document.getElementById('game').appendChild(canvas); // adds the canvas to #game.
+    canvas.className += "play";
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -95,6 +114,9 @@ var Engine = (function(global) {
             enemy.update(dt);
         });
         player.update();
+        //gem.update();
+        //life.update();
+        //gameOver.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -109,14 +131,17 @@ var Engine = (function(global) {
          */
         var rowImages = [
                 'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
+                'images/stone-block.png',   // Row 1 of 6 of stone
+                'images/stone-block.png',   // Row 2 of 6 of stone
+                'images/stone-block.png',   // Row 3 of 6 of stone
+                'images/stone-block.png',   // Row 4 of 6 of stone
+                'images/stone-block.png',   // Row 5 of 6 of stone
+                'images/stone-block.png',   // Row 6 of 6 of stone
                 'images/grass-block.png',   // Row 1 of 2 of grass
                 'images/grass-block.png'    // Row 2 of 2 of grass
             ],
-            numRows = 6,
-            numCols = 5,
+            numRows = totalRows,
+            numCols = totalCols,    // So it can be used in app.js
             row, col;
 
         /* Loop through the number of rows and columns we've defined above
@@ -136,7 +161,6 @@ var Engine = (function(global) {
             }
         }
 
-
         renderEntities();
     }
 
@@ -153,6 +177,9 @@ var Engine = (function(global) {
         });
 
         player.render();
+        gem.render();
+        life.render();
+        gameOver.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -171,8 +198,13 @@ var Engine = (function(global) {
         'images/stone-block.png',
         'images/water-block.png',
         'images/grass-block.png',
+        'images/game_over.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
+        'images/gem-blue.png',
+        'images/gem-green.png',
+        'images/gem-orange.png',
+        'images/heart.png',
         'images/frogger.png'
     ]);
     Resources.onReady(init);
