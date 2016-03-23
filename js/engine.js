@@ -36,8 +36,8 @@ var Engine = (function(global) {
         ctx = canvas.getContext('2d'),
         lastTime;
 
-    canvas.width = board_x;
-    canvas.height = board_y;
+    canvas.width = BOARD_X;
+    canvas.height = BOARD_Y;
     canvas.id = 'frogger';
     doc.body.appendChild(canvas);
     document.getElementById('game').appendChild(canvas); // adds the canvas to #game.
