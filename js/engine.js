@@ -23,11 +23,6 @@ $(document).ready(function(){
         $(".play").show();
     });
 
-/*    $(".RetryButton").click(function () {
-        $(".GameOverScreen").hide();
-        $(".play").show();
-    });*/
-
 });
 
 var Engine = (function(global) {
