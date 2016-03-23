@@ -5,8 +5,8 @@
 */
 
 // Global variables
-var board_x = 1111;
-var board_y = 830;
+var BOARD_X = 1111;
+var BOARD_Y = 830;
 var box_height = 83;
 var box_width = 101;
 
@@ -48,7 +48,7 @@ var Enemy = function() {
     // Save previous location to use in Player collision detection
     this.previousX = this.x;
     this.previousSpeed = this.speed;
-}
+};
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -67,7 +67,7 @@ Enemy.prototype.update = function(dt) {
     this.previousX = this.x;
 
     // Check if Enemy postion has moved off board.
-    if (current_x > board_x) {
+    if (current_x > BOARD_X) {
         // If so, move it to setStartPosition().
         this.setStartPosition();
     } else {
@@ -75,12 +75,12 @@ Enemy.prototype.update = function(dt) {
         this.x = current_x;
     }
 
-}
+};
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 // Set a random start position (1 of 6 possible rows).
 Enemy.prototype.setStartPosition = function() {
@@ -107,34 +107,34 @@ Enemy.prototype.setStartPosition = function() {
         //console.log(this.setSpeed);
     } else if (scoreRange(score, 100, 499)) {
         this.setSpeed = this.speed;
-        var fasterMin = this.setSpeed += 200;
-        var fasterMax = this.setSpeed += 200;
+        fasterMin = this.setSpeed += 200;
+        fasterMax = this.setSpeed += 200;
         this.speed = this.getRandomInt(fasterMin, fasterMax);
         this.setSpeed = this.speed;
         //console.log(this.setSpeed);
     } else if (scoreRange(score, 500, 999)) {
         this.setSpeed = this.speed;
-        var fasterMin = this.setSpeed += 100;
-        var fasterMax = this.setSpeed += 500;
+        fasterMin = this.setSpeed += 100;
+        fasterMax = this.setSpeed += 500;
         this.speed = this.getRandomInt(fasterMin, fasterMax);
         this.setSpeed = this.speed;
         //console.log(this.setSpeed);
      } else if (scoreRange(score, 1000, 5000)) {
         this.setSpeed = this.speed;
-        var fasterMin = this.setSpeed += 200;
-        var fasterMax = this.setSpeed += 800;
+        fasterMin = this.setSpeed += 200;
+        fasterMax = this.setSpeed += 800;
         this.speed = this.getRandomInt(fasterMin, fasterMax);
         this.setSpeed = this.speed;
         //console.log(this.setSpeed);   
     } else {
-        var min = 100;
-        var max = 500;
+        min = 100;
+        max = 500;
         this.speed = this.getRandomInt(min, max);
     }
-}
+};
 
 function scoreRange(x, min, max) {
-  var score = this.score
+  var score = this.score;
   return score >= min && score <= max;
 }
 
@@ -165,27 +165,43 @@ Enemy.prototype.collision = function() {
             bottom: player.y + player.height,
             right: player.x + player.width
         };
+        
+        // Calculates the enemy dimensions (runs large for smoother gameplay)
+        var enemyDimensions = {
+           left : this.x - 75,
+           right : this.x + 75,
+           top : this.y - 75,
+           bottom : this.y + 75
+         };
 
-        // Check if the two boxes now intersect and therefore cause a collision.
-        if (this.intersect(enemyBox, playerBox)) {
+        // Resets player to starting position when it runs into (shares the
+        // same coordinates with) an enemy.
+        if (player.x > enemyDimensions.left &&
+           player.x < enemyDimensions.right &&
+           player.y > enemyDimensions.top &&
+           player.y < enemyDimensions.bottom) {
+            player.reset();
             var lostLive = player.lives -= 1;
-            player.lives = lostLive;
-            return true;
+                player.lives = lostLive;
+            // If the player's score is currently zero, does nothing
+            if (score === 0) {
+               return null;
+            }
         }
 
     }
     return false;
-}
+};
 
 // Returns true if the enemy and player overlap at any point
-Enemy.prototype.intersect = function(enemy, player) {
+/*Enemy.prototype.intersect = function(enemy, player) {
     return !(player.left > enemy.right || player.right < enemy.left ||
              player.top > enemy.bottom || player.bottom < enemy.top);
-}
+};*/
 
 Enemy.prototype.getRandomInt = function(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+};
 
 // Now write your own player class
 // This class requires an update(), render() and
@@ -205,7 +221,7 @@ var Player = function() {
     // reset() moves the player to the starting position.
     this.x = this.y = 0;
     this.reset();
-}
+};
 
 // Update player positioning has been moved to Player.prototype.handleInput.
 // Render Player scoring and levels.
@@ -227,12 +243,12 @@ Player.prototype.update = function() {
     renderLevel();
     renderLives();
     renderScoreboard();
-}
+};
 
 // Draw the player on the screen, required method for game
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 // Player movement. Checks for boundaries.
 Player.prototype.handleInput = function(allowedKeys, allowedKeysWhenGameOver) {
@@ -289,7 +305,7 @@ Player.prototype.handleInput = function(allowedKeys, allowedKeysWhenGameOver) {
         resetGame();
     }
 
-}
+};
 
 // Move player back to original starting position
 Player.prototype.reset = function() {
@@ -299,7 +315,7 @@ Player.prototype.reset = function() {
     var start_y = total_y - 180;
     this.x = center_x;
     this.y = start_y;
-}
+};
 
 // Gem class.
 
@@ -313,7 +329,7 @@ function gemPosition() {
     this.x = Math.floor(Math.random() * totalCols) * box_width;
     // Only load gems inside the path of the running enemy bugs.
     this.y = (Math.floor(Math.random() * (totalRows - 3)) * box_height) + 55;
-};
+}
 
 // Unused.
 Gem.prototype.update = function () {
@@ -335,7 +351,7 @@ function heartPosition() {
     this.x = Math.floor(Math.random() * totalCols) * box_width;
     // Only load heart inside the path of the running enemy bugs.
     this.y = (Math.floor(Math.random() * (totalRows - 3)) * box_height) + 55;
-};
+}
 
 // Unused.
 Life.prototype.update = function () {
@@ -359,8 +375,8 @@ function checkObjectCollisions(objectA, objectB) {
             }
         }
     } else {
-        var enemyX = Math.floor(objectB.x / box_width);
-        var enemyY = Math.floor((objectB.y) / box_height);
+        enemyX = Math.floor(objectB.x / box_width);
+        enemyY = Math.floor((objectB.y) / box_height);
         if (enemyX === playerX && enemyY === playerY) {
             return true;
         }
@@ -390,16 +406,12 @@ function renderLives() {
     ctx.fillText("Lives: " + player.lives, 420, 40);
 }
 
-function renderHeart() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
-
 // Game Over.
 var gameOver = function(x, y) {
     this.sprite = 'images/game_over.png';
     this.x = x;
     this.y = y;
-}
+};
 
 // Unused.
 gameOver.prototype.update = function () {
@@ -445,7 +457,7 @@ function levelComplete() {
     // Then move back to starting position with a .5 delay.
     var reset = function resetDelay() {
         player.reset();
-    }
+    };
     setTimeout(reset, 500);
 
     heartPosition.apply(life);
@@ -462,7 +474,7 @@ var allEnemies = [];
 for (var index = 0; index < total_enemy; index++) {
     var enemyObj = new Enemy();
     allEnemies.push(enemyObj);
-};
+}
 
 // Game Over.
 var gameOverImage = 'images/game_over.png';
@@ -489,7 +501,7 @@ document.addEventListener('keyup', function(e) {
     };
     var allowedKeysWhenGameOver = {
         27: 'esc'
-    }
+    };
     switch (gameIsOver) {
         case "false":
             player.handleInput(allowedKeys[e.keyCode]);
