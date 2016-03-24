@@ -342,7 +342,7 @@ Gem.prototype.render = function() {
 
 // Life class.
 var Life = function () {
-     this.sprite = 'images/heart.png';
+     this.sprite = 'images/heart.PNG';
      heartPosition.apply(life);
 };
 
