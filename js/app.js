@@ -119,13 +119,27 @@ Enemy.prototype.setStartPosition = function() {
         this.speed = this.getRandomInt(fasterMin, fasterMax);
         this.setSpeed = this.speed;
         //console.log(this.setSpeed);
-     } else if (scoreRange(score, 1000, 5000)) {
+     } else if (scoreRange(score, 1000, 1499)) {
         this.setSpeed = this.speed;
         fasterMin = this.setSpeed += 200;
         fasterMax = this.setSpeed += 800;
         this.speed = this.getRandomInt(fasterMin, fasterMax);
         this.setSpeed = this.speed;
-        //console.log(this.setSpeed);   
+        //console.log(this.setSpeed);
+    } else if (scoreRange(score, 1500, 2499)) {
+        this.setSpeed = this.speed;
+        fasterMin = this.setSpeed += 500;
+        fasterMax = this.setSpeed += 1000;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        //console.log(this.setSpeed);
+    } else if (scoreRange(score, 2500, 3500)) {
+        this.setSpeed = this.speed;
+        fasterMin = this.setSpeed += 800;
+        fasterMax = this.setSpeed += 1500;
+        this.speed = this.getRandomInt(fasterMin, fasterMax);
+        this.setSpeed = this.speed;
+        //console.log(this.setSpeed);  
     } else {
         min = 100;
         max = 500;
@@ -236,8 +250,22 @@ Player.prototype.update = function() {
     // Check if player collides with heart. If true give the player an extra live.
     if (checkObjectCollisions(player, life)) {
         // Call heartPosition function and apply life sprite to random position.
-        this.lives += 1;
-        heartPosition.apply(life);
+        // Cap lives
+        this.lives = player.lives;
+        if (player.lives == 10) {
+            heartPositionOffCanvas.apply(life);
+            this.lives = player.lives;
+            console.log(player.lives);
+            console.log(' == 10 called');
+        }
+
+        if (player.lives <= 9 ) {
+            player.lives += 1;
+            heartPosition.apply(life);
+            player.lives = this.lives;
+            console.log(player.lives);
+            console.log(' < 10 called');
+        }
     }
 
     renderLevel();
@@ -344,6 +372,7 @@ Gem.prototype.render = function() {
 var Life = function () {
      this.sprite = 'images/heart.png';
      heartPosition.apply(life);
+     heartPositionOffCanvas.apply(life);
 };
 
 // Generate random heart position.
@@ -351,6 +380,12 @@ function heartPosition() {
     this.x = Math.floor(Math.random() * totalCols) * box_width;
     // Only load heart inside the path of the running enemy bugs.
     this.y = (Math.floor(Math.random() * (totalRows - 3)) * box_height) + 55;
+}
+
+function heartPositionOffCanvas() {
+    this.x = Math.floor(Math.random() * totalCols) * box_width;
+    // Only load heart inside the path of the running enemy bugs.
+    this.y = -1000;
 }
 
 // Unused.
@@ -460,7 +495,19 @@ function levelComplete() {
     };
     setTimeout(reset, 500);
 
-    heartPosition.apply(life);
+    lives = this.lives;
+
+    if (lives == 10 ) {
+        heartPositionOffCanvas.apply(life);
+        this.lives = player.lives;
+        //console.log(player.lives);
+        //console.log('==10 called');
+    } else if (player.lives < 10 ) {
+        heartPosition.apply(life);
+        this.lives = player.lives;
+        //console.log(player.lives);
+        //console.log(' < 10 called');
+    }
 }
 
 // Now instantiate your objects.
